@@ -1,8 +1,38 @@
 // ============================================
+// FONCTIONS UTILITAIRES
+// ============================================
+
+function saveToLocalStorage(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
+}
+
+function getFromLocalStorage(key) {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
+}
+
+function removeFromLocalStorage(key) {
+    localStorage.removeItem(key);
+}
+
+async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+}
+
+async function verifyPassword(password, storedHash) {
+    const hash = await hashPassword(password);
+    return hash === storedHash;
+}
+
+// ============================================
 // MATJAR STORE - Logique Admin
 // ============================================
 
-// Clés de stockage
 const STORAGE_KEYS = {
     ADMIN_ACCOUNT: 'matjar_admin_account',
     ADMIN_SESSION: 'matjar_admin_session',
@@ -12,7 +42,6 @@ const STORAGE_KEYS = {
     CUSTOM_STYLE: 'matjar_custom_style'
 };
 
-// Liste des 58 wilayas d'Algérie
 const WILAYAS = [
     "01 - Adrar", "02 - Chlef", "03 - Laghouat", "04 - Oum El Bouaghi",
     "05 - Batna", "06 - Béjaïa", "07 - Biskra", "08 - Béchar",
@@ -35,12 +64,10 @@ const WILAYAS = [
 // GESTION DE L'AUTHENTIFICATION
 // ============================================
 
-// Vérifier si l'admin est connecté
 function isAdminLoggedIn() {
     return getFromLocalStorage(STORAGE_KEYS.ADMIN_SESSION) !== null;
 }
 
-// Afficher la page de connexion ou le dashboard
 function checkAuth() {
     if (isAdminLoggedIn()) {
         showDashboard();
@@ -49,13 +76,11 @@ function checkAuth() {
     }
 }
 
-// Afficher la page de connexion
 function showLoginPage() {
     document.getElementById('login-page').style.display = 'flex';
     document.getElementById('admin-dashboard').style.display = 'none';
 }
 
-// Afficher le dashboard
 function showDashboard() {
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('admin-dashboard').style.display = 'block';
@@ -65,7 +90,6 @@ function showDashboard() {
     loadCustomStyle();
 }
 
-// Gérer l'inscription
 async function handleRegister(event) {
     event.preventDefault();
     
@@ -103,7 +127,6 @@ async function handleRegister(event) {
     showDashboard();
 }
 
-// Gérer la connexion
 async function handleLogin(event) {
     event.preventDefault();
     
@@ -138,7 +161,6 @@ async function handleLogin(event) {
     showDashboard();
 }
 
-// Gérer la déconnexion
 function handleLogout() {
     removeFromLocalStorage(STORAGE_KEYS.ADMIN_SESSION);
     showLoginPage();
@@ -148,7 +170,6 @@ function handleLogout() {
 // GESTION DES PRODUITS
 // ============================================
 
-// Charger les produits dans la page admin
 function loadAdminProducts() {
     const products = getFromLocalStorage(STORAGE_KEYS.PRODUCTS) || [];
     const container = document.getElementById('admin-products-list');
@@ -184,7 +205,6 @@ function loadAdminProducts() {
     });
 }
 
-// Afficher le formulaire d'ajout
 function showAddProductForm() {
     document.getElementById('product-form-container').style.display = 'block';
     document.getElementById('product-form-title').textContent = 'Ajouter un produit';
@@ -192,7 +212,6 @@ function showAddProductForm() {
     document.getElementById('product-id').value = '';
 }
 
-// Afficher le formulaire de modification
 function editProduct(productId) {
     const products = getFromLocalStorage(STORAGE_KEYS.PRODUCTS) || [];
     const product = products.find(p => p.id === productId);
@@ -214,7 +233,6 @@ function editProduct(productId) {
     document.getElementById('product-form-container').scrollIntoView({ behavior: 'smooth' });
 }
 
-// Supprimer un produit
 function deleteProduct(productId) {
     if (!confirm('Voulez-vous vraiment supprimer ce produit ?')) return;
     
@@ -226,7 +244,6 @@ function deleteProduct(productId) {
     alert('✅ Produit supprimé !');
 }
 
-// Gérer la soumission du formulaire produit
 function handleProductSubmit(event) {
     event.preventDefault();
     
@@ -267,7 +284,6 @@ function handleProductSubmit(event) {
 // GESTION DES COMMANDES
 // ============================================
 
-// Charger les commandes
 function loadAdminOrders() {
     const orders = getFromLocalStorage(STORAGE_KEYS.ORDERS) || [];
     const container = document.getElementById('admin-orders-list');
@@ -308,7 +324,6 @@ function loadAdminOrders() {
     });
 }
 
-// Obtenir la classe CSS selon le statut
 function getStatusClass(status) {
     switch(status) {
         case 'Nouvelle commande':
@@ -326,7 +341,6 @@ function getStatusClass(status) {
 // GESTION DES PARAMÈTRES
 // ============================================
 
-// Générer la liste des wilayas
 function generateWilayasList() {
     const container = document.getElementById('wilayas-list');
     if (!container) return;
@@ -346,7 +360,6 @@ function generateWilayasList() {
     });
 }
 
-// Sélectionner/désélectionner toutes les wilayas
 function toggleAllWilayas(select) {
     const checkboxes = document.querySelectorAll('#wilayas-list input[type="checkbox"]');
     checkboxes.forEach(checkbox => {
@@ -354,13 +367,11 @@ function toggleAllWilayas(select) {
     });
 }
 
-// Récupérer les wilayas sélectionnées
 function getSelectedWilayas() {
     const checkboxes = document.querySelectorAll('#wilayas-list input[type="checkbox"]:checked');
     return Array.from(checkboxes).map(cb => cb.value);
 }
 
-// Charger les paramètres
 function loadSettings() {
     generateWilayasList();
     
@@ -379,7 +390,6 @@ function loadSettings() {
     }
 }
 
-// Gérer la soumission des paramètres
 function handleSettingsSubmit(event) {
     event.preventDefault();
     
@@ -406,7 +416,6 @@ function handleSettingsSubmit(event) {
 // GESTION DU STYLE PERSONNALISÉ
 // ============================================
 
-// Charger le style personnalisé
 function loadCustomStyle() {
     const customStyle = getFromLocalStorage(STORAGE_KEYS.CUSTOM_STYLE);
     
@@ -419,7 +428,6 @@ function loadCustomStyle() {
     }
 }
 
-// Gérer la soumission du style personnalisé
 function handleCustomStyleSubmit(event) {
     event.preventDefault();
     

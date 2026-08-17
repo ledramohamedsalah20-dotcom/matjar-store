@@ -1,8 +1,45 @@
 // ============================================
+// FONCTIONS UTILITAIRES
+// ============================================
+
+function saveToLocalStorage(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
+}
+
+function getFromLocalStorage(key) {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
+}
+
+function removeFromLocalStorage(key) {
+    localStorage.removeItem(key);
+}
+
+function trackEvent(eventName, data = {}) {
+    console.log('📊', eventName, data);
+}
+
+function trackViewContent(product) {
+    trackEvent('ViewContent', product);
+}
+
+function trackAddToCart(product) {
+    trackEvent('AddToCart', product);
+}
+
+function trackInitiateCheckout(orderData) {
+    trackEvent('InitiateCheckout', orderData);
+}
+
+function trackPurchase(orderData) {
+    trackEvent('Purchase', orderData);
+}
+
+// ============================================
 // MATJAR STORE - Logique principale
 // ============================================
 
-// Clés de stockage (doivent correspondre à admin.js)
+// Clés de stockage
 const STORAGE_KEYS = {
     PRODUCTS: 'matjar_products',
     ORDERS: 'matjar_orders',
@@ -33,12 +70,10 @@ const WILAYAS = [
 // CHARGEMENT DES DONNÉES
 // ============================================
 
-// Récupérer les produits depuis le localStorage
 function getProducts() {
     return getFromLocalStorage(STORAGE_KEYS.PRODUCTS) || [];
 }
 
-// Récupérer les paramètres
 function getSettings() {
     return getFromLocalStorage(STORAGE_KEYS.SETTINGS) || {
         deliveryFee: 500,
@@ -58,7 +93,6 @@ function displayProducts() {
     
     if (!container) return;
     
-    // Vider le conteneur
     container.innerHTML = '';
     
     if (products.length === 0) {
@@ -66,30 +100,24 @@ function displayProducts() {
         return;
     }
     
-    // Vider le select
     if (select) {
         select.innerHTML = '<option value="">Choisissez un produit...</option>';
     }
     
-    // Afficher chaque produit
     products.forEach(product => {
-        // Ne pas afficher les produits en rupture de stock
         if (product.inStock === false) return;
         
         const card = document.createElement('div');
         card.className = 'product-card';
         
-        // Badge promotion
         const promoBadge = product.promotion && product.oldPrice 
             ? `<div class="promotion-badge">-${calculateDiscount(product)}%</div>` 
             : '';
         
-        // Prix avec promotion
         const priceDisplay = product.oldPrice 
             ? `<span class="old-price">${product.oldPrice} DZD</span>` 
             : '';
         
-        // Description (HTML personnalisé ou texte simple)
         const descriptionDisplay = product.html 
             ? product.html 
             : `<p class="product-description">${product.description}</p>`;
@@ -112,7 +140,6 @@ function displayProducts() {
         
         container.appendChild(card);
         
-        // Ajouter au select du formulaire
         if (select) {
             const option = document.createElement('option');
             option.value = product.id;
@@ -120,12 +147,10 @@ function displayProducts() {
             select.appendChild(option);
         }
         
-        // Track ViewContent
         trackViewContent(product);
     });
 }
 
-// Calculer le pourcentage de réduction
 function calculateDiscount(product) {
     if (product.oldPrice && product.oldPrice > product.price) {
         return Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100);
@@ -133,14 +158,12 @@ function calculateDiscount(product) {
     return 0;
 }
 
-// Sélectionner un produit et scroller vers le formulaire
 function selectProduct(productId) {
     const select = document.getElementById('product-select');
     if (select) {
         select.value = productId;
         document.getElementById('order').scrollIntoView({ behavior: 'smooth' });
         
-        // Track AddToCart
         const products = getProducts();
         const product = products.find(p => p.id === productId);
         if (product) {
@@ -157,14 +180,11 @@ function loadWilayas() {
     const select = document.getElementById('wilaya-select');
     if (!select) return;
     
-    // Vider le select
     select.innerHTML = '<option value="">Choisissez votre wilaya...</option>';
     
-    // Récupérer les wilayas configurées par l'admin
     const settings = getSettings();
     const allowedWilayas = settings.wilayas || WILAYAS;
     
-    // Afficher uniquement les wilayas autorisées
     WILAYAS.forEach(wilaya => {
         if (allowedWilayas.includes(wilaya)) {
             const option = document.createElement('option');
@@ -185,25 +205,21 @@ function handleOrderSubmit(event) {
     const products = getProducts();
     const settings = getSettings();
     
-    // Récupérer les données du formulaire
     const productId = document.getElementById('product-select').value;
     const quantity = parseInt(document.getElementById('quantity').value);
     const wilaya = document.getElementById('wilaya-select').value;
     
-    // Vérifier que le produit existe
     const product = products.find(p => p.id === productId);
     if (!product) {
         alert('Veuillez sélectionner un produit valide.');
         return;
     }
     
-    // Vérifier que la wilaya est sélectionnée
     if (!wilaya) {
         alert('Veuillez sélectionner votre wilaya.');
         return;
     }
     
-    // Calculer les totaux
     const subtotal = product.price * quantity;
     const deliveryFee = settings.deliveryFee || 0;
     const total = subtotal + deliveryFee;
@@ -226,32 +242,21 @@ function handleOrderSubmit(event) {
         status: 'Nouvelle commande'
     };
     
-    // Sauvegarder la commande
     saveOrder(orderData);
-    
-    // Track InitiateCheckout
     trackInitiateCheckout(orderData);
-    
-    // Envoyer via Netlify Function
     sendOrderToFormspree(orderData);
-    
-    // Afficher confirmation
     showOrderConfirmation(orderData);
     
-    // Reset du formulaire
     document.getElementById('order-form').reset();
     document.getElementById('quantity').value = 1;
     
-    // Track Purchase
     trackPurchase(orderData);
 }
 
-// Générer un ID de commande unique
 function generateOrderId() {
     return 'CMD-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
 }
 
-// Sauvegarder la commande dans localStorage
 function saveOrder(orderData) {
     let orders = getFromLocalStorage(STORAGE_KEYS.ORDERS) || [];
     orders.push(orderData);
@@ -259,7 +264,6 @@ function saveOrder(orderData) {
     console.log('✅ Commande sauvegardée:', orderData);
 }
 
-// Envoyer la commande via Netlify Function (sécurisé)
 function sendOrderToFormspree(orderData) {
     console.log('📤 Envoi de la commande...');
     
@@ -298,7 +302,6 @@ function sendOrderToFormspree(orderData) {
     });
 }
 
-// Afficher la confirmation de commande
 function showOrderConfirmation(orderData) {
     const settings = getSettings();
     
@@ -354,7 +357,6 @@ function initMobileMenu() {
             navLinks.classList.toggle('active');
         });
         
-        // Fermer le menu quand on clique sur un lien
         navLinks.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
                 navLinks.classList.remove('active');
@@ -372,13 +374,11 @@ function applyCustomStyle() {
     
     if (!customStyle) return;
     
-    // Appliquer la couleur principale
     if (customStyle.primaryColor) {
         document.documentElement.style.setProperty('--secondary', customStyle.primaryColor);
         document.documentElement.style.setProperty('--accent', customStyle.primaryColor);
     }
     
-    // Appliquer le CSS personnalisé
     if (customStyle.css) {
         const styleElement = document.createElement('style');
         styleElement.id = 'custom-style';
@@ -386,7 +386,6 @@ function applyCustomStyle() {
         document.head.appendChild(styleElement);
     }
     
-    // Appliquer la police personnalisée
     if (customStyle.font) {
         const fontLink = document.createElement('link');
         fontLink.rel = 'stylesheet';
@@ -396,7 +395,6 @@ function applyCustomStyle() {
         document.body.style.fontFamily = customStyle.font + ', sans-serif';
     }
     
-    // Appliquer les textes personnalisés
     if (customStyle.heroTitle) {
         const heroTitle = document.querySelector('.hero h1');
         if (heroTitle) heroTitle.innerHTML = customStyle.heroTitle;
@@ -415,19 +413,11 @@ function applyCustomStyle() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 Matjar Store - Initialisation');
     
-    // Afficher les produits
     displayProducts();
-    
-    // Charger les wilayas
     loadWilayas();
-    
-    // Appliquer le style personnalisé
     applyCustomStyle();
-    
-    // Initialiser le menu mobile
     initMobileMenu();
     
-    // Gérer la soumission du formulaire
     const orderForm = document.getElementById('order-form');
     if (orderForm) {
         orderForm.addEventListener('submit', handleOrderSubmit);
