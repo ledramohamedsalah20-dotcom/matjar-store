@@ -1,0 +1,18 @@
+# Fichiers sensibles
+.env
+.env.local
+.env.production
+js/config.js
+config.local.js
+config.secret.js
+
+# Node modules
+node_modules/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Fichiers temporaires
+*.log
+*.tmp
