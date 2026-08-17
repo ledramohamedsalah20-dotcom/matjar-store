@@ -39,7 +39,6 @@ function trackPurchase(orderData) {
 // MATJAR STORE - Logique principale
 // ============================================
 
-// Clés de stockage
 const STORAGE_KEYS = {
     PRODUCTS: 'matjar_products',
     ORDERS: 'matjar_orders',
@@ -47,7 +46,6 @@ const STORAGE_KEYS = {
     CUSTOM_STYLE: 'matjar_custom_style'
 };
 
-// Liste des 58 wilayas d'Algérie
 const WILAYAS = [
     "01 - Adrar", "02 - Chlef", "03 - Laghouat", "04 - Oum El Bouaghi",
     "05 - Batna", "06 - Béjaïa", "07 - Biskra", "08 - Béchar",
@@ -65,6 +63,12 @@ const WILAYAS = [
     "53 - In Salah", "54 - In Guezzam", "55 - Touggourt", "56 - Djanet",
     "57 - El M'Ghair", "58 - El Meniaa"
 ];
+
+// ============================================
+// IMAGE PAR DÉFAUT (SVG intégré - pas de chargement externe)
+// ============================================
+
+const DEFAULT_IMAGE = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="%23f5f5f5"/><text x="50%25" y="50%25" font-family="Arial" font-size="18" fill="%23999" text-anchor="middle" dy=".3em">Matjar Store</text></svg>';
 
 // ============================================
 // CHARGEMENT DES DONNÉES
@@ -122,9 +126,14 @@ function displayProducts() {
             ? product.html 
             : `<p class="product-description">${product.description}</p>`;
         
+        // Utiliser l'image du produit ou l'image par défaut
+        const productImage = product.image && product.image !== '' 
+            ? product.image 
+            : DEFAULT_IMAGE;
+        
         card.innerHTML = `
             ${promoBadge}
-            <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/300x300?text=${encodeURIComponent(product.name)}'">
+            <img src="${productImage}" alt="${product.name}" class="product-image">
             <div class="product-info">
                 <h3 class="product-name">${product.name}</h3>
                 ${descriptionDisplay}
@@ -264,7 +273,6 @@ function saveOrder(orderData) {
     console.log('✅ Commande sauvegardée:', orderData);
 }
 
-// Envoyer la commande via Vercel API
 function sendOrderToAPI(orderData) {
     console.log('📤 Envoi de la commande...');
     
