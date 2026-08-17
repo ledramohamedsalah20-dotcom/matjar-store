@@ -358,7 +358,9 @@ function loadAdminOrders() {
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
                 <div class="order-total">Total : ${order.total} DZD</div>
-                <button class="delete-btn" onclick="deleteOrder('${order.id}')">🗑️ Supprimer</button>
+                <button onclick="deleteOrder('${order.id}')" style="background: #e74c3c; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-family: 'Inter', sans-serif;">
+                    🗑️ Supprimer
+                </button>
             </div>
         `;
         
@@ -366,7 +368,6 @@ function loadAdminOrders() {
     });
 }
 
-// Supprimer une commande
 function deleteOrder(orderId) {
     if (!confirm('Voulez-vous vraiment supprimer cette commande ?')) return;
     
@@ -378,7 +379,6 @@ function deleteOrder(orderId) {
     alert('✅ Commande supprimée !');
 }
 
-// Effacer toutes les commandes
 function clearAllOrders() {
     if (!confirm('⚠️ Voulez-vous vraiment supprimer TOUTES les commandes ?')) return;
     
