@@ -217,6 +217,7 @@ function showAddProductForm() {
     document.getElementById('product-form-title').textContent = 'Ajouter un produit';
     document.getElementById('product-form').reset();
     document.getElementById('product-id').value = '';
+    document.getElementById('product-image-url').value = '';
 }
 
 function editProduct(productId) {
@@ -232,6 +233,7 @@ function editProduct(productId) {
     document.getElementById('product-price').value = product.price;
     document.getElementById('product-old-price').value = product.oldPrice || '';
     document.getElementById('product-image').value = '';
+    document.getElementById('product-image-url').value = product.image || '';
     document.getElementById('product-description').value = product.description;
     document.getElementById('product-html').value = product.html || '';
     document.getElementById('product-promotion').checked = product.promotion || false;
@@ -251,7 +253,6 @@ function deleteProduct(productId) {
     alert('✅ Produit supprimé !');
 }
 
-// Convertir l'image en base64
 function convertImageToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -266,17 +267,19 @@ async function handleProductSubmit(event) {
     
     const productId = document.getElementById('product-id').value;
     const imageFile = document.getElementById('product-image').files[0];
+    const imageUrl = document.getElementById('product-image-url').value.trim();
     
     let imageData = '';
     
-    if (imageFile) {
+    if (imageUrl) {
+        imageData = imageUrl;
+    } else if (imageFile) {
         if (imageFile.size > 2 * 1024 * 1024) {
             alert('⚠️ Image trop grande ! Maximum 2 MB.');
             return;
         }
         imageData = await convertImageToBase64(imageFile);
     } else if (productId) {
-        // Garder l'ancienne image si pas de nouvelle
         const products = getFromLocalStorage(STORAGE_KEYS.PRODUCTS) || [];
         const existingProduct = products.find(p => p.id === productId);
         if (existingProduct) {

@@ -96,11 +96,17 @@
                                 <label for="product-old-price">Ancien prix (promotion)</label>
                                 <input type="number" id="product-old-price" min="0">
                             </div>
-                            <div class="form-group">
-                                <label for="product-image">Image du produit</label>
-                                <input type="file" id="product-image" accept="image/*">
-                                <small style="color: #666; font-size: 0.8rem;">Choisissez une image (jpg, png, webp)</small>
-                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-image-url">Image URL (collez un lien)</label>
+                            <input type="text" id="product-image-url" placeholder="https://exemple.com/image.jpg">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-image">OU uploader depuis votre ordinateur</label>
+                            <input type="file" id="product-image" accept="image/*">
+                            <small style="color: #666; font-size: 0.8rem;">Choisissez une image (jpg, png, webp) - Max 2MB</small>
                         </div>
                         
                         <div class="form-group">
