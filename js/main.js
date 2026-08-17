@@ -244,7 +244,7 @@ function handleOrderSubmit(event) {
     
     saveOrder(orderData);
     trackInitiateCheckout(orderData);
-    sendOrderToFormspree(orderData);
+    sendOrderToAPI(orderData);
     showOrderConfirmation(orderData);
     
     document.getElementById('order-form').reset();
@@ -264,10 +264,11 @@ function saveOrder(orderData) {
     console.log('✅ Commande sauvegardée:', orderData);
 }
 
-function sendOrderToFormspree(orderData) {
+// Envoyer la commande via Vercel API
+function sendOrderToAPI(orderData) {
     console.log('📤 Envoi de la commande...');
     
-    fetch('/.netlify/functions/submit-order', {
+    fetch('/api/submit-order', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
