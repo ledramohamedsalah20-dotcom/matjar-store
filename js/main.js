@@ -232,7 +232,7 @@ function handleOrderSubmit(event) {
     // Track InitiateCheckout
     trackInitiateCheckout(orderData);
     
-    // Envoyer via Formspree
+    // Envoyer via Netlify Function
     sendOrderToFormspree(orderData);
     
     // Afficher confirmation
@@ -259,47 +259,43 @@ function saveOrder(orderData) {
     console.log('✅ Commande sauvegardée:', orderData);
 }
 
-// Envoyer la commande via Formspree
+// Envoyer la commande via Netlify Function (sécurisé)
 function sendOrderToFormspree(orderData) {
-    if (CONFIG.FORMSPREE_URL && CONFIG.FORMSPREE_URL !== '') {
-        console.log('📤 Envoi de la commande vers Formspree...');
-        
-        fetch(CONFIG.FORMSPREE_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                commande_id: orderData.id,
-                nom_complet: orderData.fullname,
-                telephone: orderData.phone,
-                wilaya: orderData.wilaya,
-                adresse: orderData.address,
-                produit: orderData.productName,
-                quantite: orderData.quantity,
-                sous_total: orderData.subtotal,
-                livraison: orderData.deliveryFee,
-                total: orderData.total,
-                notes: orderData.notes,
-                date: orderData.orderDate,
-                statut: orderData.status
-            })
+    console.log('📤 Envoi de la commande...');
+    
+    fetch('/.netlify/functions/submit-order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            commande_id: orderData.id,
+            nom_complet: orderData.fullname,
+            telephone: orderData.phone,
+            wilaya: orderData.wilaya,
+            adresse: orderData.address,
+            produit: orderData.productName,
+            quantite: orderData.quantity,
+            sous_total: orderData.subtotal + ' DZD',
+            livraison: orderData.deliveryFee + ' DZD',
+            total: orderData.total + ' DZD',
+            notes: orderData.notes,
+            date: orderData.orderDate,
+            statut: orderData.status
         })
-        .then(response => {
-            if (response.ok) {
-                console.log('✅ Commande envoyée avec succès !');
-            } else {
-                console.error('❌ Erreur lors de l\'envoi');
-            }
-        })
-        .catch(error => {
-            console.error('❌ Erreur réseau:', error);
-            console.log('ℹ️ La commande reste sauvegardée en local');
-        });
-    } else {
-        console.log('⚠️ Formspree non configuré - Commande sauvegardée en local uniquement');
-    }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('✅ Commande envoyée avec succès !');
+        } else {
+            console.error('❌ Erreur:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('❌ Erreur réseau:', error);
+        console.log('ℹ️ La commande reste sauvegardée en local');
+    });
 }
 
 // Afficher la confirmation de commande

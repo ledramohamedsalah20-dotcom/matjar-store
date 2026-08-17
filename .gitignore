@@ -16,3 +16,6 @@ Thumbs.db
 # Fichiers temporaires
 *.log
 *.tmp
+
+# Netlify
+.netlify/
