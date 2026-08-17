@@ -65,7 +65,7 @@ const WILAYAS = [
 ];
 
 // ============================================
-// IMAGE PAR DÉFAUT (SVG intégré - pas de chargement externe)
+// IMAGE PAR DÉFAUT
 // ============================================
 
 const DEFAULT_IMAGE = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="%23f5f5f5"/><text x="50%25" y="50%25" font-family="Arial" font-size="18" fill="%23999" text-anchor="middle" dy=".3em">Matjar Store</text></svg>';
@@ -124,9 +124,10 @@ function displayProducts() {
         
         const descriptionDisplay = product.html 
             ? product.html 
-            : `<p class="product-description">${product.description}</p>`;
+            : (product.description && product.description !== '' 
+                ? `<p class="product-description">${product.description}</p>` 
+                : '');
         
-        // Utiliser l'image du produit ou l'image par défaut
         const productImage = product.image && product.image !== '' 
             ? product.image 
             : DEFAULT_IMAGE;

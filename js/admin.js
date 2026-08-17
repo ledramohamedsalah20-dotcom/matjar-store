@@ -234,7 +234,7 @@ function editProduct(productId) {
     document.getElementById('product-old-price').value = product.oldPrice || '';
     document.getElementById('product-image').value = '';
     document.getElementById('product-image-url').value = product.image || '';
-    document.getElementById('product-description').value = product.description;
+    document.getElementById('product-description').value = product.description || '';
     document.getElementById('product-html').value = product.html || '';
     document.getElementById('product-promotion').checked = product.promotion || false;
     document.getElementById('product-stock').checked = product.inStock !== false;
@@ -292,7 +292,7 @@ async function handleProductSubmit(event) {
         price: parseFloat(document.getElementById('product-price').value),
         oldPrice: document.getElementById('product-old-price').value ? parseFloat(document.getElementById('product-old-price').value) : null,
         image: imageData,
-        description: document.getElementById('product-description').value,
+        description: document.getElementById('product-description').value || '',
         html: document.getElementById('product-html').value || '',
         promotion: document.getElementById('product-promotion').checked,
         inStock: document.getElementById('product-stock').checked
