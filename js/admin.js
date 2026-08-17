@@ -356,11 +356,37 @@ function loadAdminOrders() {
                 <span><strong>Produit :</strong> ${order.productName}</span>
                 <span><strong>Quantité :</strong> ${order.quantity}</span>
             </div>
-            <div class="order-total">Total : ${order.total} DZD</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                <div class="order-total">Total : ${order.total} DZD</div>
+                <button class="delete-btn" onclick="deleteOrder('${order.id}')">🗑️ Supprimer</button>
+            </div>
         `;
         
         container.appendChild(item);
     });
+}
+
+// Supprimer une commande
+function deleteOrder(orderId) {
+    if (!confirm('Voulez-vous vraiment supprimer cette commande ?')) return;
+    
+    let orders = getFromLocalStorage(STORAGE_KEYS.ORDERS) || [];
+    orders = orders.filter(o => o.id !== orderId);
+    saveToLocalStorage(STORAGE_KEYS.ORDERS, orders);
+    
+    loadAdminOrders();
+    alert('✅ Commande supprimée !');
+}
+
+// Effacer toutes les commandes
+function clearAllOrders() {
+    if (!confirm('⚠️ Voulez-vous vraiment supprimer TOUTES les commandes ?')) return;
+    
+    if (!confirm('Cette action est irréversible ! Confirmer ?')) return;
+    
+    removeFromLocalStorage(STORAGE_KEYS.ORDERS);
+    loadAdminOrders();
+    alert('✅ Toutes les commandes ont été supprimées !');
 }
 
 function getStatusClass(status) {
