@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Matjar Store</title>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -20,7 +19,6 @@
             <h2>Espace Admin</h2>
             <p>Connectez-vous pour gérer votre boutique</p>
             
-            <!-- Formulaire de connexion -->
             <form id="login-form" class="login-form">
                 <div class="form-group">
                     <label for="login-email">Email</label>
@@ -33,12 +31,10 @@
                 <button type="submit" class="login-btn">Se connecter</button>
             </form>
             
-            <!-- Lien pour créer un compte -->
             <p class="register-link">
                 Première visite ? <a href="#" id="show-register">Créer un compte admin</a>
             </p>
             
-            <!-- Formulaire d'inscription (masqué par défaut) -->
             <form id="register-form" class="register-form" style="display: none;">
                 <div class="form-group">
                     <label for="register-email">Email</label>
@@ -57,9 +53,8 @@
         </div>
     </div>
 
-    <!-- Dashboard Admin (masqué par défaut) -->
+    <!-- Dashboard Admin -->
     <div id="admin-dashboard" class="admin-dashboard" style="display: none;">
-        <!-- Navigation Admin -->
         <nav class="admin-nav">
             <div class="admin-nav-container">
                 <div class="admin-logo">Matjar<span>Store</span> - Admin</div>
@@ -72,7 +67,6 @@
             </div>
         </nav>
 
-        <!-- Contenu du Dashboard -->
         <div class="dashboard-content">
             <!-- Onglet Produits -->
             <div id="tab-products" class="tab-content active">
@@ -81,7 +75,6 @@
                     <button class="add-product-btn" id="add-product-btn">+ Ajouter un produit</button>
                 </div>
                 
-                <!-- Formulaire d'ajout/modification de produit -->
                 <div id="product-form-container" class="product-form-container" style="display: none;">
                     <form id="product-form" class="product-form">
                         <h3 id="product-form-title">Ajouter un produit</h3>
@@ -100,12 +93,13 @@
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="product-old-price">Ancien prix (pour promotion)</label>
+                                <label for="product-old-price">Ancien prix (promotion)</label>
                                 <input type="number" id="product-old-price" min="0">
                             </div>
                             <div class="form-group">
-                                <label for="product-image">Image URL</label>
-                                <input type="url" id="product-image" placeholder="https://...">
+                                <label for="product-image">Image du produit</label>
+                                <input type="file" id="product-image" accept="image/*">
+                                <small style="color: #666; font-size: 0.8rem;">Choisissez une image (jpg, png, webp)</small>
                             </div>
                         </div>
                         
@@ -137,7 +131,6 @@
                     </form>
                 </div>
                 
-                <!-- Liste des produits -->
                 <div id="admin-products-list" class="admin-products-list">
                     <!-- Les produits seront affichés ici -->
                 </div>
@@ -159,7 +152,6 @@
                     <h2>Paramètres</h2>
                 </div>
                 
-                <!-- Livraison -->
                 <div class="settings-container">
                     <h3>Livraison en Algérie</h3>
                     <form id="settings-form" class="settings-form">
@@ -178,46 +170,36 @@
                                     <button type="button" class="select-all-btn" onclick="toggleAllWilayas(true)">Tout sélectionner</button>
                                     <button type="button" class="deselect-all-btn" onclick="toggleAllWilayas(false)">Tout désélectionner</button>
                                 </div>
-                                <div id="wilayas-list" class="wilayas-list">
-                                    <!-- Les wilayas seront générées par JavaScript -->
-                                </div>
+                                <div id="wilayas-list" class="wilayas-list"></div>
                             </div>
                         </div>
                         <button type="submit" class="save-btn">Enregistrer les paramètres</button>
                     </form>
                 </div>
                 
-                <!-- Personnalisation du style -->
                 <div class="settings-container custom-style-container">
                     <h3>Personnalisation du style</h3>
-                    <p class="settings-description">Personnalisez l'apparence de votre site avec du CSS personnalisé</p>
-                    
                     <form id="custom-style-form" class="settings-form">
                         <div class="form-group">
                             <label for="custom-css">CSS personnalisé</label>
                             <textarea id="custom-css" rows="10" placeholder="Collez votre CSS ici..."></textarea>
                         </div>
-                        
                         <div class="form-group">
                             <label for="custom-font">Police personnalisée (Google Fonts)</label>
                             <input type="text" id="custom-font" placeholder="Ex: Poppins, Roboto, Lato...">
                         </div>
-                        
                         <div class="form-group">
                             <label for="primary-color">Couleur principale</label>
                             <input type="color" id="primary-color" value="#c9a96e">
                         </div>
-                        
                         <div class="form-group">
                             <label for="hero-title">Titre principal</label>
                             <input type="text" id="hero-title" value="Révélez votre beauté naturelle">
                         </div>
-                        
                         <div class="form-group">
                             <label for="hero-subtitle">Sous-titre</label>
                             <input type="text" id="hero-subtitle" value="Cosmétiques Naturels">
                         </div>
-                        
                         <button type="submit" class="save-btn">Enregistrer le style</button>
                     </form>
                 </div>

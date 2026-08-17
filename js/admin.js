@@ -61,7 +61,7 @@ const WILAYAS = [
 ];
 
 // ============================================
-// GESTION DE L'AUTHENTIFICATION
+// AUTHENTIFICATION
 // ============================================
 
 function isAdminLoggedIn() {
@@ -187,13 +187,20 @@ function loadAdminProducts() {
         const item = document.createElement('div');
         item.className = 'admin-product-item';
         
+        const imageDisplay = product.image 
+            ? `<img src="${product.image}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">`
+            : '<div style="width: 80px; height: 80px; background: #f5f5f5; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #999;">Sans image</div>';
+        
         item.innerHTML = `
-            <div class="admin-product-info">
-                <h3>${product.name}</h3>
-                <p>Prix : <strong>${product.price} DZD</strong></p>
-                ${product.oldPrice ? `<p>Ancien prix : <del>${product.oldPrice} DZD</del></p>` : ''}
-                ${product.promotion ? '<p style="color: #e74c3c;">En promotion</p>' : ''}
-                ${product.inStock ? '<p style="color: #4CAF50;">En stock</p>' : '<p style="color: #e74c3c;">Rupture de stock</p>'}
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                ${imageDisplay}
+                <div class="admin-product-info">
+                    <h3>${product.name}</h3>
+                    <p>Prix : <strong>${product.price} DZD</strong></p>
+                    ${product.oldPrice ? `<p>Ancien prix : <del>${product.oldPrice} DZD</del></p>` : ''}
+                    ${product.promotion ? '<p style="color: #e74c3c;">En promotion</p>' : ''}
+                    ${product.inStock ? '<p style="color: #4CAF50;">En stock</p>' : '<p style="color: #e74c3c;">Rupture de stock</p>'}
+                </div>
             </div>
             <div class="admin-product-actions">
                 <button class="edit-btn" onclick="editProduct('${product.id}')">Modifier</button>
@@ -224,7 +231,7 @@ function editProduct(productId) {
     document.getElementById('product-name').value = product.name;
     document.getElementById('product-price').value = product.price;
     document.getElementById('product-old-price').value = product.oldPrice || '';
-    document.getElementById('product-image').value = product.image || '';
+    document.getElementById('product-image').value = '';
     document.getElementById('product-description').value = product.description;
     document.getElementById('product-html').value = product.html || '';
     document.getElementById('product-promotion').checked = product.promotion || false;
@@ -244,15 +251,44 @@ function deleteProduct(productId) {
     alert('✅ Produit supprimé !');
 }
 
-function handleProductSubmit(event) {
+// Convertir l'image en base64
+function convertImageToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+    });
+}
+
+async function handleProductSubmit(event) {
     event.preventDefault();
     
     const productId = document.getElementById('product-id').value;
+    const imageFile = document.getElementById('product-image').files[0];
+    
+    let imageData = '';
+    
+    if (imageFile) {
+        if (imageFile.size > 2 * 1024 * 1024) {
+            alert('⚠️ Image trop grande ! Maximum 2 MB.');
+            return;
+        }
+        imageData = await convertImageToBase64(imageFile);
+    } else if (productId) {
+        // Garder l'ancienne image si pas de nouvelle
+        const products = getFromLocalStorage(STORAGE_KEYS.PRODUCTS) || [];
+        const existingProduct = products.find(p => p.id === productId);
+        if (existingProduct) {
+            imageData = existingProduct.image || '';
+        }
+    }
+    
     const productData = {
         name: document.getElementById('product-name').value,
         price: parseFloat(document.getElementById('product-price').value),
         oldPrice: document.getElementById('product-old-price').value ? parseFloat(document.getElementById('product-old-price').value) : null,
-        image: document.getElementById('product-image').value || 'https://via.placeholder.com/300x300?text=Produit',
+        image: imageData,
         description: document.getElementById('product-description').value,
         html: document.getElementById('product-html').value || '',
         promotion: document.getElementById('product-promotion').checked,
@@ -338,7 +374,7 @@ function getStatusClass(status) {
 }
 
 // ============================================
-// GESTION DES PARAMÈTRES
+// PARAMÈTRES
 // ============================================
 
 function generateWilayasList() {
@@ -413,7 +449,7 @@ function handleSettingsSubmit(event) {
 }
 
 // ============================================
-// GESTION DU STYLE PERSONNALISÉ
+// STYLE PERSONNALISÉ
 // ============================================
 
 function loadCustomStyle() {
@@ -446,7 +482,7 @@ function handleCustomStyleSubmit(event) {
 }
 
 // ============================================
-// NAVIGATION PAR ONGLETS
+// NAVIGATION
 // ============================================
 
 function initTabs() {
